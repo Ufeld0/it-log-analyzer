@@ -1,0 +1,9 @@
+2026-05-15 08:23:11 INFO User jakub logged in
+2026-05-15 08:45:03 WARNING Failed login attempt for user admin
+2026-05-15 09:12:44 ERROR BitLocker key not found on device DESKTOP-TH4421
+2026-05-15 09:15:01 INFO User jakub logged out
+2026-05-15 09:31:22 WARNING Failed login attempt for user admin
+2026-05-15 10:05:55 CRITICAL Account lockout: user jakub after 5 failed attempts
+2026-05-15 10:45:11 INFO Ticket #48821 created in ServiceNow
+2026-05-15 11:02:33 ERROR Active Directory sync failed for OU=Thales,DC=corp
+2026-05-15 11:30:00 WARNING Disk space below 10% on DESKTOP-TH4421

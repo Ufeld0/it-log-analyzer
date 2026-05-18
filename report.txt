@@ -1,0 +1,18 @@
+IT Log Analysis Report
+Generated: 2026-05-18 09:02:41.071794
+========================================
+
+SUMMARY
+  INFO: 3
+  WARNING: 3
+  ERROR: 2
+  CRITICAL: 1
+
+EVENTS REQUIRING ATTENTION (6)
+========================================
+[WARNING] 2026-05-15 08:45:03 — Failed login attempt for user admin
+[ERROR] 2026-05-15 09:12:44 — BitLocker key not found on device DESKTOP-TH4421
+[WARNING] 2026-05-15 09:31:22 — Failed login attempt for user admin
+[CRITICAL] 2026-05-15 10:05:55 — Account lockout: user jakub after 5 failed attempts
+[ERROR] 2026-05-15 11:02:33 — Active Directory sync failed for OU=Thales,DC=corp
+[WARNING] 2026-05-15 11:30:00 — Disk space below 10% on DESKTOP-TH4421
