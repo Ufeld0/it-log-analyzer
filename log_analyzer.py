@@ -13,7 +13,7 @@ class LogAnalyzerError(Exception):
     pass
 
 class LogAnalyzer:
-    def __init__(self, input_file, output_file):
+    def __init__(self, input_file: str, output_file: str) -> None:
         self.input_file = input_file
         self.output_file = output_file
         self.logs = []
@@ -21,7 +21,7 @@ class LogAnalyzer:
         self.counts = {}
         self.ai_analysis = ""
 
-    def load(self):
+    def load(self) -> None:
         try:
             file_handle = open(self.input_file, "r", encoding="utf-8")
         except FileNotFoundError:
@@ -42,13 +42,13 @@ class LogAnalyzer:
         if not self.logs:
             raise LogAnalyzerError(f"File '{self.input_file}' is empty or contains no valid log entries.")
 
-    def filter(self):
+    def filter(self) -> None:
         self.critical = []
         for log in self.logs:
             if log["level"] in ["WARNING", "ERROR", "CRITICAL"]:
                 self.critical.append(log)
 
-    def count(self):
+    def count(self) -> None:
         self.counts = {}
         for log in self.logs:
             level = log["level"]
@@ -57,7 +57,7 @@ class LogAnalyzer:
             else:
                 self.counts[level] = 1
 
-    def detect_brute_force(self, threshold=3, window_seconds=60):
+    def detect_brute_force(self, threshold: int = 3, window_seconds: int = 60) -> list:
         attempts = {}
         for log in self.logs:
             if log["level"] == "WARNING" and "Failed login attempt" in log["message"]:
@@ -81,7 +81,7 @@ class LogAnalyzer:
                     break
         return alerts                    
 
-    def analyze(self):
+    def analyze(self) -> None:
         if not self.critical:
             self.ai_analysis = "No events requiring attention."
             return
@@ -112,7 +112,7 @@ Be concise. No markdown. No headers. Plain text only.""",
         )
         self.ai_analysis = message.content[0].text
 
-    def save(self):
+    def save(self) -> None:
         with open(self.output_file, "w", encoding="utf-8") as f:
             f.write(f"IT Log Analysis Report\n")
             f.write(f"Generated: {datetime.datetime.now()}\n")
