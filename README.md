@@ -2,13 +2,13 @@
 
 AI-powered Windows log analysis tool for IT Security teams.
 
-Parses system logs, identifies critical events, and generates security analysis using Claude AI (Anthropic).
+Parses system logs, identifies critical events, detects brute force attacks, and generates security analysis using Claude AI (Anthropic).
 
 ## Features
 
 - Parses structured Windows log files
 - Filters WARNING, ERROR, and CRITICAL events
-- Detects patterns: brute force attempts, cascading failures, AD issues
+- Detects brute force login attempts (configurable threshold and time window)
 - Generates AI security analysis with actionable recommendations
 - Outputs formatted report to file
 
@@ -33,10 +33,30 @@ python log_analyzer.py --input logs.txt --output report.txt
 
 Set your API key before running:
 
-```bash
-# Windows PowerShell
+```powershell
 $env:ANTHROPIC_API_KEY = "sk-ant-..."
 ```
+
+## Example Output
+2026-05-25 08:15:33 [WARNING] BRUTE FORCE DETECTED: 192.168.1.105 — 3 attempts (08:15:33 - 08:15:49)
+IT Log Analysis Report
+SUMMARY
+INFO: 4
+WARNING: 4
+ERROR: 3
+CRITICAL: 1
+AI SECURITY ANALYSIS
+THREAT LEVEL: HIGH
+SUMMARY: Brute force attack detected alongside encryption and AD connectivity failures.
+FINDINGS:
+
+Three failed login attempts from 192.168.1.105 within 16 seconds
+BitLocker key retrieval failure on DESKTOP-TH4829
+Active Directory sync failure — domain controller unreachable
+IMMEDIATE ACTIONS:
+Isolate 192.168.1.105 and investigate for compromise
+Verify domain controller status immediately
+Check BitLocker recovery on DESKTOP-TH4829
 
 ## Tech Stack
 
