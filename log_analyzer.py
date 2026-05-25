@@ -6,7 +6,11 @@ import logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s"
+    
 )
+
+class LogAnalyzerError(Exception):
+    pass
 
 class LogAnalyzer:
     def __init__(self, input_file, output_file):
@@ -21,8 +25,8 @@ class LogAnalyzer:
         try:
             file_handle = open(self.input_file, "r", encoding="utf-8")
         except FileNotFoundError:
-            logging.error(f"File '{self.input_file}' not found.")
-            exit(1)
+            raise LogAnalyzerError(f"File '{self.input_file}' not found.")
+    
         with file_handle as file:
             for line in file:
                 line = line.strip()
@@ -36,8 +40,7 @@ class LogAnalyzer:
                 }
                 self.logs.append(log)
         if not self.logs:
-            logging.error(f"File '{self.input_file}' is empty or contains no valid log entries.")
-            exit(1)
+            raise LogAnalyzerError(f"File '{self.input_file}' is empty or contains no valid log entries.")
 
     def filter(self):
         self.critical = []
@@ -107,12 +110,16 @@ parser.add_argument("--input", required=True, help="Path to log file")
 parser.add_argument("--output", required=True, help="Path to output report")
 args = parser.parse_args()
 
-analyzer = LogAnalyzer(args.input, args.output)
-analyzer.load()
-analyzer.filter()
-analyzer.count()
-analyzer.analyze()
-analyzer.save()
+try:
+    analyzer = LogAnalyzer(args.input, args.output)
+    analyzer.load()
+    analyzer.filter()
+    analyzer.count()
+    analyzer.analyze()
+    analyzer.save()
+except LogAnalyzerError as e:
+    logging.error(str(e))
+    exit(1)
 
 logging.info(f"Found {len(analyzer.critical)} entries requiring attention.")
 logging.info(f"Statistics: {analyzer.counts}")
