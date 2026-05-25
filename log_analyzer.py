@@ -57,6 +57,30 @@ class LogAnalyzer:
             else:
                 self.counts[level] = 1
 
+    def detect_brute_force(self, threshold=3, window_seconds=60):
+        attempts = {}
+        for log in self.logs:
+            if log["level"] == "WARNING" and "Failed login attempt" in log["message"]:
+                ip = log["message"].split("from ")[-1]
+                if ip not in attempts:
+                    attempts[ip] = []
+                attempts[ip].append(log["time"])
+        alerts = []
+        for ip, times in attempts.items():
+            timestamps = [datetime.datetime.strptime(t, "%Y-%m-%d %H:%M:%S") for t in times]
+            timestamps.sort()
+            for i in range(len(timestamps)):
+                window = [t for t in timestamps if t >= timestamps[i] and (t - timestamps[i]).seconds <= window_seconds]
+                if len(window) >= threshold:
+                    alerts.append({
+                    "ip": ip,
+                    "count": len(window),
+                    "first": timestamps[i].strftime("%H:%M:%S"),
+                    "last": window[-1].strftime("%H:%M:%S")
+                    })
+                    break
+        return alerts                    
+
     def analyze(self):
         if not self.critical:
             self.ai_analysis = "No events requiring attention."
@@ -120,6 +144,11 @@ try:
 except LogAnalyzerError as e:
     logging.error(str(e))
     exit(1)
+
+brute_force = analyzer.detect_brute_force()
+if brute_force:
+    for alert in brute_force:
+        logging.warning(f"BRUTE FORCE DETECTED: {alert['ip']} — {alert['count']} attempts ({alert['first']} - {alert['last']})")
 
 logging.info(f"Found {len(analyzer.critical)} entries requiring attention.")
 logging.info(f"Statistics: {analyzer.counts}")
