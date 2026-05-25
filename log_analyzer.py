@@ -14,6 +14,7 @@ class LogAnalyzerError(Exception):
 
 class LogAnalyzer:
     def __init__(self, input_file: str, output_file: str) -> None:
+        """Initialize LogAnalyzer with input and output file paths."""
         self.input_file = input_file
         self.output_file = output_file
         self.logs = []
@@ -22,6 +23,8 @@ class LogAnalyzer:
         self.ai_analysis = ""
 
     def load(self) -> None:
+        """Load and parse log entries from the input file into self.logs."""
+
         try:
             file_handle = open(self.input_file, "r", encoding="utf-8")
         except FileNotFoundError:
@@ -43,12 +46,14 @@ class LogAnalyzer:
             raise LogAnalyzerError(f"File '{self.input_file}' is empty or contains no valid log entries.")
 
     def filter(self) -> None:
+        """Filter log entries by severity level into self.critical."""
         self.critical = []
         for log in self.logs:
             if log["level"] in ["WARNING", "ERROR", "CRITICAL"]:
                 self.critical.append(log)
 
     def count(self) -> None:
+        """Count log entries by severity level and store results in self.counts."""
         self.counts = {}
         for log in self.logs:
             level = log["level"]
@@ -58,6 +63,16 @@ class LogAnalyzer:
                 self.counts[level] = 1
 
     def detect_brute_force(self, threshold: int = 3, window_seconds: int = 60) -> list:
+        """
+        Detect brute force login attempts in log data.
+
+        Args:
+            threshold: Minimum number of failed attempts to trigger an alert.
+            window_seconds: Time window in seconds to check for repeated attempts.
+
+        Returns:
+            List of dicts with keys: ip, count, first, last.
+        """
         attempts = {}
         for log in self.logs:
             if log["level"] == "WARNING" and "Failed login attempt" in log["message"]:
@@ -82,6 +97,7 @@ class LogAnalyzer:
         return alerts                    
 
     def analyze(self) -> None:
+        """Send critical log entries to Claude AI and store analysis in self.ai_analysis."""
         if not self.critical:
             self.ai_analysis = "No events requiring attention."
             return
@@ -113,6 +129,7 @@ Be concise. No markdown. No headers. Plain text only.""",
         self.ai_analysis = message.content[0].text
 
     def save(self) -> None:
+        """Write the full analysis report to the output file."""
         with open(self.output_file, "w", encoding="utf-8") as f:
             f.write(f"IT Log Analysis Report\n")
             f.write(f"Generated: {datetime.datetime.now()}\n")
