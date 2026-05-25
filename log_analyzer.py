@@ -52,31 +52,35 @@ def count_by_level(logs):
 def analyze_with_ai(critical_logs):
     if not critical_logs:
         return "No events requiring attention."
-    
+
     log_text = "\n".join(
         f"[{log['level']}] {log['time']} — {log['message']}"
         for log in critical_logs
     )
-    
+
     client = anthropic.Anthropic()
-    
+
     message = client.messages.create(
         model="claude-haiku-4-5",
         max_tokens=500,
+        system="""You are a senior SOC analyst reviewing Windows enterprise logs.
+Always respond in this exact format:
+THREAT LEVEL: [CRITICAL/HIGH/MEDIUM/LOW]
+SUMMARY: [one sentence, max 20 words]
+FINDINGS:
+- [finding]
+IMMEDIATE ACTIONS:
+- [action]
+
+Be concise. No markdown. No headers. Plain text only.""",
         messages=[
             {
                 "role": "user",
-                "content": f"""You are an IT Security analyst. Analyze the following system logs and respond:
-1. What are the main issues?
-2. Do you see any patterns indicating an attack or serious failure?
-3. What actions do you recommend?
-
-LOGS:
-{log_text}"""
+                "content": f"Analyze these security logs:\n{log_text}"
             }
         ]
     )
-    
+
     return message.content[0].text
 
 
