@@ -1,5 +1,6 @@
 import datetime
 import argparse
+import anthropic
 import logging
 
 logging.basicConfig(
@@ -12,7 +13,7 @@ def load_logs_from_file(filepath):
     try:
         file_handle = open(filepath, "r")
     except FileNotFoundError:
-        logging.error(f"Plik '{filepath}' nie istnieje.")
+        logging.error(f"File '{filepath}' not found.")
         exit(1)
     with file_handle as file:
         for line in file:
@@ -27,7 +28,7 @@ def load_logs_from_file(filepath):
             }
             logs.append(log)
     if not logs:
-        logging.error(f"Plik '{filepath}' jest pusty lub nie zawiera poprawnych logów.")
+        logging.error(f"File '{filepath}' is empty or contains no valid log entries.")
         exit(1)
     return logs
 
@@ -48,6 +49,36 @@ def count_by_level(logs):
             counts[level] = 1
     return counts
 
+def analyze_with_ai(critical_logs):
+    if not critical_logs:
+        return "No events requiring attention."
+    
+    log_text = "\n".join(
+        f"[{log['level']}] {log['time']} — {log['message']}"
+        for log in critical_logs
+    )
+    
+    client = anthropic.Anthropic()
+    
+    message = client.messages.create(
+        model="claude-haiku-4-5",
+        max_tokens=500,
+        messages=[
+            {
+                "role": "user",
+                "content": f"""You are an IT Security analyst. Analyze the following system logs and respond:
+1. What are the main issues?
+2. Do you see any patterns indicating an attack or serious failure?
+3. What actions do you recommend?
+
+LOGS:
+{log_text}"""
+            }
+        ]
+    )
+    
+    return message.content[0].text
+
 
 parser = argparse.ArgumentParser(description="IT Log Analyzer")
 parser.add_argument("--input", required=True, help="Path to log file")
@@ -56,8 +87,8 @@ args = parser.parse_args()
 
 logs = load_logs_from_file(args.input)
 
-def save_report(critical, counts, output_file):
-    with open(output_file, "w") as f:
+def save_report(critical, counts, output_file, ai_analysis):
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(f"IT Log Analysis Report\n")
         f.write(f"Generated: {datetime.datetime.now()}\n")
         f.write(f"{'='*40}\n\n")
@@ -71,14 +102,21 @@ def save_report(critical, counts, output_file):
         for entry in critical:
             f.write(f"[{entry['level']}] {entry['time']} — {entry['message']}\n")
 
+        f.write(f"\nAI SECURITY ANALYSIS\n")
+        f.write(f"{'='*40}\n")
+        f.write(ai_analysis + "\n")    
+
 critical = filter_critical(logs)
 
-logging.info(f"Znaleziono {len(critical)} wpisów wymagających uwagi.")
+logging.info(f"Found  {len(critical)} entries requiring attention.")
 for entry in critical:
     logging.info(f"  [{entry['level']}] {entry['time']} — {entry['message']}")
 
 counts = count_by_level(logs)
-logging.info(f"Statystyki: {counts}")
+logging.info(f"Statistics: {counts}")
 
-save_report(critical, counts, args.output)
-logging.info(f"Raport zapisany do {args.output}")
+ai_analysis = analyze_with_ai(critical)
+logging.info("AI analysis completed.")
+
+save_report(critical, counts, args.output, ai_analysis)
+logging.info(f"Report saved to {args.output}")

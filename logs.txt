@@ -1,0 +1,12 @@
+2026-05-25 08:01:12 INFO User admin logged in successfully
+2026-05-25 08:15:33 WARNING Failed login attempt for user john from 192.168.1.105
+2026-05-25 08:15:41 WARNING Failed login attempt for user john from 192.168.1.105
+2026-05-25 08:15:49 WARNING Failed login attempt for user john from 192.168.1.105
+2026-05-25 08:16:02 ERROR Account john locked after multiple failed attempts
+2026-05-25 08:22:17 INFO Backup completed successfully
+2026-05-25 08:45:03 CRITICAL Disk usage on C:\ reached 95% threshold
+2026-05-25 09:03:44 ERROR BitLocker key retrieval failed for device DESKTOP-TH4829
+2026-05-25 09:11:22 INFO Windows Update installed KB5034441
+2026-05-25 09:33:58 WARNING Antivirus definitions outdated on LAPTOP-EC7721
+2026-05-25 09:41:05 ERROR Active Directory sync failed — domain controller unreachable
+2026-05-25 09:55:30 INFO ServiceNow ticket INC0042891 created automatically
